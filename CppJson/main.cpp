@@ -5,6 +5,7 @@
 
 int main()
 {
-	std::cout << Array("string", 2, 4, 3.12) << std::endl;
+	Array arr{ "dsad", 2, 4, 3.12, true, nullptr };
+	arr += 1;
 	return 0;
 }
