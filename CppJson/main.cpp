@@ -1,9 +1,10 @@
 #include <iostream>
+#include "Array.h"
+#include "Object.h"
 #include "Json.h"
-using namespace std;
 
 int main()
 {
-	cout << Array("string", 2, 4, 3.12) << endl;
+	std::cout << Array("string", 2, 4, 3.12) << std::endl;
 	return 0;
 }

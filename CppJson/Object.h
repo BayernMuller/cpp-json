@@ -1,5 +1,7 @@
 #pragma once
-class Object
+#include "Jsonbase.h"
+
+class Object : JsonBase
 {
 };
 

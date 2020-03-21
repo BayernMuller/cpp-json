@@ -1,12 +1,7 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <any>
-#include <ios>
-#include "Object.h"
-#include "Array.h"
+#include "Jsonbase.h"
 
-class Json
+class Json : JsonBase
 {
 };
 

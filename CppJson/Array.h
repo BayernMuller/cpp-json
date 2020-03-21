@@ -1,7 +1,7 @@
 #pragma once
+#include "Jsonbase.h"
 
-
-class Array
+class Array : JsonBase
 {
 public:
 	template<class ...Args>
