@@ -4,6 +4,6 @@ using namespace std;
 
 int main()
 {
-	cout << "Hello Json" << endl;
+	Array arr("string", 2, 4, 3.12);
 	return 0;
 }
