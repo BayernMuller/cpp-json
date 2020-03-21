@@ -4,6 +4,6 @@ using namespace std;
 
 int main()
 {
-	Array arr("string", 2, 4, 3.12);
+	cout << Array("string", 2, 4, 3.12) << endl;
 	return 0;
 }
