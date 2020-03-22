@@ -14,39 +14,56 @@ public: // definitions
 
 public: // public funtions
 	template<class T>
-	Value(T&& value) : m_Value(value) {};
+	Value(T&& value) : m_Value(std::move(value)) {};
 
 	template<class T>
 	Value(const T& value) : m_Value(value) {};
 
+	Value(const char* str) : m_Value(std::string(str)) {};
+
 	template<class T>
 	T& GetValue();
 
-	json_value_type GetType();
+	json_value_type GetType() const;
 
 public: // operators
+	template<class T>
+	T& operator=(T&& value) const;
 
-
+	template<class T>
+	T& operator=(const T& value) const;
 
 public: // friend functions
-	friend std::ostream& operator<<(std::ostream& os, Value&& val);
+	friend std::ostream& operator<<(std::ostream& os, const Value& val);
 
-private:
+private: 
 	json_value m_Value;
 };
 
 template<class T>
-inline T& Value::GetValue()
+inline T& Value::GetValue() 
 {
 	return std::get<T>(m_Value);
 }
 
-Value::json_value_type Value::GetType()
+template<class T>
+inline T& Value::operator=(T&& value) const
+{
+	m_Value = std::move(value);
+}
+
+template<class T>
+inline T& Value::operator=(const T& value) const
+{
+	m_Value = value;
+}
+
+Value::json_value_type Value::GetType() const
 {
 	return static_cast<Value::json_value_type>(m_Value.index());
 }
 
-std::ostream& operator<<(std::ostream& os, Value&& val)
+std::ostream& operator<<(std::ostream& os, Value& val)
 {
 	switch (val.GetType())
 	{
@@ -67,11 +84,11 @@ std::ostream& operator<<(std::ostream& os, Value&& val)
 		break;
 
 	case Value::json_value_type::EMPTY:
-		os << val.GetValue<std::nullptr_t>();
+		os << "null";
 		break;
 		
 	case Value::json_value_type::ARRAY:
-		os << std::move(val.GetValue<Array>());
+		//os << val.GetValue<Array>());
 		break;
 
 	case Value::json_value_type::OBJECT:

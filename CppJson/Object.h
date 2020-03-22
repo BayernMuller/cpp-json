@@ -1,8 +1,9 @@
 #pragma once
-#include "Value.h"
+
 
 class Object
 {
+public:
 	Object()
 	{
 
