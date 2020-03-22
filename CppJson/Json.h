@@ -1,7 +1,7 @@
 #pragma once
-#include "Jsonbase.h"
+#include "Value.h"
 
-class Json : Jsonbase
+class Json
 {
 };
 

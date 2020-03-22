@@ -1,8 +1,8 @@
 #pragma once
-#include "Jsonbase.h"
+#include "Value.h"
 #include <iostream>
 
-class Array : Jsonbase
+class Array
 {
 public:
 	template<class ...Args>
@@ -11,13 +11,14 @@ public:
 	template<class T>
 	Array& operator+=(T&& value);
 
-	decltype(auto) operator[](std::size_t index);
+	//json_value& operator[](std::size_t index);
 
 	friend std::ostream& operator<<(std::ostream& os, Array&& arr);
 
 private:
 	template<class T, class ...Args>
 	void UnPacking(T&& value, Args&&...Cs);
+	// Default UnPacking function.
 
 	template<class ...Args>
 	void UnPacking(const char*, Args&&...);
@@ -27,7 +28,7 @@ private:
 	// Called when Cs is empty
 
 private:
-	std::vector<value> m_Elements;
+	std::vector<Value> m_Elements;
 };
 
 template<class ...Args>
@@ -43,12 +44,12 @@ inline Array& Array::operator+=(T&& value)
 	UnPacking(value);
 	return *this;
 }
-
-decltype(auto) Array::operator[](std::size_t index)
+/*
+Jsonbase::json_value& Array::operator[](std::size_t index)
 {
-	
+	return m_Elements.at(index);
 }
-
+*/
 template<class T, class ...Args>
 inline void Array::UnPacking(T&& value, Args&&...Cs)
 {
@@ -65,9 +66,5 @@ inline void Array::UnPacking(const char* str, Args&&...Cs)
 
 inline std::ostream& operator<<(std::ostream& os, Array&& arr)
 {
-	/*
-		How I do it? 
-	*/
 	return os;
 }
-

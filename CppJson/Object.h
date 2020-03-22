@@ -1,7 +1,16 @@
 #pragma once
-#include "Jsonbase.h"
+#include "Value.h"
 
-class Object : Jsonbase
+class Object
 {
+	Object()
+	{
+
+	}
+
+	~Object()
+	{
+
+	}
 };
 
