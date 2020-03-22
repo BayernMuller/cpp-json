@@ -2,24 +2,33 @@
 #include <variant>
 #include <string>
 #include <vector>
-#include <any>
 #include <ios>
-class Array;
-class Object;
-class Json;
+#include "Object.h"
+#include "Array.h"
 
 class Value
 {
-public:
+public: // definitions
 	enum json_value_type { BOOLEAN, INT, DOUBLE, STRING, EMPTY, ARRAY, OBJECT };
 	using json_value = std::variant<bool, int, double, std::string, std::nullptr_t, Array, Object>;
+
+public: // public funtions
+	template<class T>
+	Value(T&& value) : m_Value(value) {};
+
+	template<class T>
+	Value(const T& value) : m_Value(value) {};
 
 	template<class T>
 	T& GetValue();
 
 	json_value_type GetType();
 
-public:
+public: // operators
+
+
+
+public: // friend functions
 	friend std::ostream& operator<<(std::ostream& os, Value&& val);
 
 private:
@@ -62,11 +71,11 @@ std::ostream& operator<<(std::ostream& os, Value&& val)
 		break;
 		
 	case Value::json_value_type::ARRAY:
-		os << val.GetValue<Array>();
+		os << std::move(val.GetValue<Array>());
 		break;
 
 	case Value::json_value_type::OBJECT:
-		os << val.GetValue<Object>();
+		//os << std::move(val.GetValue<Object>());
 		break;
 	}
 	return os;
