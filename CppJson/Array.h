@@ -1,14 +1,16 @@
 #pragma once
+
 class Value;
 
 class Array
 {
+	friend Value;
 public:
 	template<class ...Args>
 	Array(Args&&...Cs);
 
 	template<class T>
-	Array& operator+=(T&& value);
+	Array& append(T&& value);
 
 private:
 	template<class T, class ...Args>
@@ -30,9 +32,9 @@ inline Array::Array(Args&& ...Cs)
 }
 
 template<class T>
-inline Array& Array::operator+=(T&& value)
+inline Array& Array::append(T&& value)
 {
-	UnPacking(value);
+	m_Elements.push_back(value);
 	return *this;
 }
 

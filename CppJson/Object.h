@@ -4,14 +4,9 @@
 class Object
 {
 public:
-	Object()
-	{
-
-	}
-
-	~Object()
-	{
-
-	}
+	Object() {}
+	~Object() {}
+private:
+	//std::map<std::string, Value> m_Elements;
 };
 
