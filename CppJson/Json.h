@@ -3,9 +3,8 @@
 
 namespace json
 {
-	using Null = Value::Null;
+	constexpr Value::Null Null = nullptr;
 	using value_type = Value::value_type;
 	using Array = Value::Array;
 	using Object = Value::Object;
-	
 }
