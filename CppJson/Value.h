@@ -6,6 +6,7 @@
 #include <string>
 #include <ios>
 #include <map>
+#include <iostream>
 
 namespace json
 {
@@ -18,32 +19,33 @@ namespace json
 		using Null = std::nullptr_t;
 		using json_value = std::variant<bool, int, double, std::string, Null, Array, Object>;
 
-	public: // public funtions
-		template<class ...Args, std::size_t size = sizeof...(Args)> Value(Args&& ...args);
-		template<class T> Value(T&& value) : m_Value(std::forward<T>(value)) {}
-		template<class T> Value(const T& value) : m_Value(value) {}
+	public: // constructors
+		
+		template<class T> Value(T value);
+		//template<class T> Value(const T& value);
+		Value(const Value& value) : m_Value(value.m_Value) {}
+		Value(Value&& value) : m_Value(std::move(value.m_Value)) {}
 		Value(const char* str) : m_Value(std::string(str)) {}
+		Value(std::initializer_list<Value> list);
+		Value(std::initializer_list<std::pair<std::string, Value>> list);
 		Value() {}
 
+
+	public: // public funtions
 		template<class T>
 		T& GetValue();
 
 		value_type GetType() const;
-		auto HasValue() { return m_Value.valueless_by_exception(); }
+		bool HasValue() { return !m_Value.valueless_by_exception(); }
 
 	public: // operators
-		/*
-		template<class T>
-		T& operator=(T&& value) ;
-
-		template<class T>
-		T& operator=(const T& value) ;
-		*/
+		Value& operator=(Value&& value);
+		Value& operator=(const Value& value);
 		Value& operator[](std::size_t index);
 		Value& operator[](const char* key);
 
 	public: // friend functions
-		friend std::ostream& operator<<(std::ostream& os, const Value& val);
+		friend std::ostream& operator<<(std::ostream& os, Value& val);
 
 	private:
 		
@@ -54,12 +56,17 @@ namespace json
 
 	///////////////////////////////////////////////////////
 
-	template<class ...Args, std::size_t size>
-	inline Value::Value(Args&& ...args)
+	template<class T>
+	inline Value::Value(T value) : m_Value(value)
 	{
-		m_Value.emplace<Array>().reserve(size);
-		(std::get<Array>(m_Value).push_back(std::forward<Args>(args)), ...);
+		
 	}
+
+	/*template<class T>
+	inline Value::Value(const T& value) : m_Value(value)
+	{
+
+	}*/
 
 	template<class T>
 	inline T& Value::GetValue()
@@ -68,19 +75,28 @@ namespace json
 	}
 
 
-	/*
-	template<class T>
-	inline T& Value::operator=(T&& value) const
+	inline Value::Value(std::initializer_list<Value> list)
 	{
-		m_Value.emplace<T>(value);
+		m_Value.emplace<Array>().assign(list.begin(), list.end());
 	}
 
-	template<class T>
-	inline T& Value::operator=(const T& value) const
+	inline Value::Value(std::initializer_list<std::pair<std::string, Value>> list)
 	{
-		m_Value.emplace<T>(value);
+
 	}
-	*/
+
+	inline Value& Value::operator=(Value&& value)
+	{
+		m_Value = std::move(value.m_Value);
+		return *this;
+	}
+
+	inline Value& Value::operator=(const Value& value)
+	{
+		m_Value = value.m_Value;
+		return *this;
+	}
+
 	inline Value::value_type Value::GetType() const
 	{
 		return static_cast<Value::value_type>(m_Value.index());
@@ -128,14 +144,12 @@ namespace json
 		case Value::value_type::ARRAY:
 		{
 			auto& arr = val.GetValue<Value::Array>();
-			os << "[ \n\r";
+			os << "[ ";
 			for (auto itr = arr.begin(); itr != arr.end(); itr++)
 			{
 				os << *itr;
 				if (itr != arr.end() - 1)
-				{
 					os << ", ";
-				}
 			}
 			os << " ]\n\r";
 			break;
