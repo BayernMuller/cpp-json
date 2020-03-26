@@ -11,7 +11,6 @@
 namespace json
 {
 	class Json;
-	class std::ostream;
 
 	/*  --------------------------------  */
 
@@ -26,13 +25,15 @@ namespace json
 		using json_value = std::variant<bool, int, double, std::string, Null, Array, Object>;
 
 	public: // constructors
-		template<class T> Value(T value) : m_Value(value), m_nDepth(0) {} 
-		// This constructor always copy argument. 
-		// I tried rvalue-reference function but not worked for some reason. I couldn't get it.
-		// std::variant accepts only lvalue or lvalue-reference..
-		Value(const Value& value) : m_Value(value.m_Value), m_nDepth(0) {}
-		Value(Value&& value) : m_Value(std::move(value.m_Value)), m_nDepth(0) {}
-		Value(const char* str) : m_Value(std::string(str)), m_nDepth(0) {}
+		Value(bool value)		: m_Value(value), m_nDepth(0) {}
+		Value(int value)		: m_Value(value), m_nDepth(0) {}
+		Value(double value)		: m_Value(value), m_nDepth(0) {}
+		Value(const char* str)	: m_Value(std::move(std::string(str))), m_nDepth(0) {}
+		Value(Null value)		: m_Value(value), m_nDepth(0) {}
+		Value(Array&& value)	: m_Value(std::forward<Array>(value)), m_nDepth(0) {}
+		Value(Object&& value)	: m_Value(std::forward<Object>(value)), m_nDepth(0) {}
+		Value(const Value& value) : m_Value(value.m_Value), m_nDepth(value.m_nDepth) {}
+		Value(Value&& value) : m_Value(std::move(value.m_Value)), m_nDepth(value.m_nDepth) {}
 		Value() : m_Value(nullptr), m_nDepth(0) {}
 
 
@@ -95,7 +96,7 @@ namespace json
 	{
 		return GetValue<Array>()[index];
 	}
-
+	
 	inline Value& Value::operator[](const char* key)
 	{
 		return GetValue<Object>()[key];
@@ -105,6 +106,12 @@ namespace json
 	{
 		for (int i = 0; i < depth; i++)
 			os << '\t';
+	}
+
+	std::ostream& operator<<(std::ostream& os, Value::Object& obj)
+	{
+		//operator<<(os, *(&Value(obj)));
+		return os;
 	}
 
 	std::ostream& operator<<(std::ostream& os, Value& val)
@@ -166,6 +173,7 @@ namespace json
 					os << ',';
 				os << "\r\n";
 			}
+			val.SpaceDepth(os, val.m_nDepth);
 			os << '}';
 			break;
 		}
