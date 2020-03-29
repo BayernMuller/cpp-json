@@ -55,6 +55,8 @@ namespace json
 
 	private:
 		void SpaceDepth(std::ostream& os, int depth);
+		void SetDepth(Object& obj, int depth);
+		void SetDepth(Array& arr, int depth);
 
 	private:
 
@@ -108,9 +110,47 @@ namespace json
 			os << '\t';
 	}
 
+	inline void Value::SetDepth(Object& obj, int depth)
+	{
+		for (auto& [key, val] : obj)
+		{
+			switch (val.GetType())
+			{
+			case value_type::ARRAY:
+				SetDepth(val.GetValue<Array>(), depth + 1);
+				break;
+			case value_type::OBJECT:
+				SetDepth(val.GetValue<Object>(), depth + 1);
+				break;
+			default:
+				val.m_nDepth = depth + 1;
+				break;
+			}
+		}
+	}
+
+	inline void Value::SetDepth(Array& arr, int depth)
+	{
+		for (auto& val : arr)
+		{
+			switch (val.GetType())
+			{
+			case value_type::ARRAY:
+				SetDepth(val.GetValue<Array>(), depth + 1);
+				break;
+			case value_type::OBJECT:
+				SetDepth(val.GetValue<Object>(), depth + 1);
+				break;
+			default:
+				val.m_nDepth = m_nDepth;
+				break;
+			}
+		}
+	}
+
 	std::ostream& operator<<(std::ostream& os, Value::Object& obj)
 	{
-		//operator<<(os, *(&Value(obj)));
+		operator<<(os, *(&Value(std::move(obj))));
 		return os;
 	}
 
@@ -146,7 +186,6 @@ namespace json
 		case Value::value_type::ARRAY:
 		{
 			auto& arr = val.GetValue<Value::Array>();
-			//val.SpaceDepth(os, val.m_nDepth);
 			os << "[\r\n";
 			for (auto itr = arr.begin(); itr != arr.end(); itr++)
 			{
@@ -164,6 +203,7 @@ namespace json
 		{
 			int cnt = 0;
 			auto& obj = val.GetValue<Value::Object>();
+			val.SetDepth(obj, 0);
 			os << "{\r\n";
 			for (auto& [key, val] : obj)
 			{
