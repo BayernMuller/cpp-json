@@ -40,6 +40,8 @@ int main()
 		{"is_best", true},
 		{"winning_rate", 99.9}
 	};
-	std::cout << bayern << std::endl;
+
+	string str = Json::Dumps(bayern);
+	cout << str << endl;
 	return 0;
 }

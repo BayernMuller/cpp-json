@@ -1,5 +1,6 @@
 #pragma once
 #include "Value.h"
+#include <sstream>
 
 namespace json
 {
@@ -12,9 +13,11 @@ namespace json
 	class Json
 	{
 	public:
-		static std::string Dumps(Object& obj)
+		static std::string Dumps(JsonMaker& obj)
 		{
-			
+			std::ostringstream oss;
+			oss << obj;
+			return oss.str();
 		}
 	};
 }
