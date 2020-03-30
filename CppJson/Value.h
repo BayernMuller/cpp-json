@@ -30,8 +30,10 @@ namespace json
 		Value(double value)		: m_Value(value), m_nDepth(0) {}
 		Value(const char* str)	: m_Value(std::move(std::string(str))), m_nDepth(0) {}
 		Value(Null value)		: m_Value(value), m_nDepth(0) {}
-		Value(Array&& value)	: m_Value(std::forward<Array>(value)), m_nDepth(0) {}
-		Value(Object&& value)	: m_Value(std::forward<Object>(value)), m_nDepth(0) {}
+		Value(Array&& arr)		: m_Value(std::move(arr)), m_nDepth(0) {}
+		Value(Object&& obj)		: m_Value(std::move(obj)), m_nDepth(0) {}
+		Value(const Array& arr) : m_Value(arr), m_nDepth(0) {}
+		Value(const Object& obj): m_Value(obj), m_nDepth(0) {}
 		Value(const Value& value) : m_Value(value.m_Value), m_nDepth(value.m_nDepth) {}
 		Value(Value&& value) : m_Value(std::move(value.m_Value)), m_nDepth(value.m_nDepth) {}
 		Value() : m_Value(nullptr), m_nDepth(0) {}
@@ -121,28 +123,30 @@ namespace json
 		if (val.GetType() == types::OBJECT)
 		{
 			for (auto& [key, value] : val.GetValue<Object>())
-			{
 				if (isNotValue(value))
-				{
 					Value::SetDepth(value, depth + 1);
-				}
-			}
 		}
 		else
 		{
 			for (auto& value : val.GetValue<Array>())
-			{
 				if (isNotValue(value))
-				{
 					Value::SetDepth(value, depth + 1);
-				}
-			}
 		}
 	}
 
 	std::ostream& operator<<(std::ostream& os, Value::Object& obj)
 	{
-		operator<<(os, *(&Value(std::move(obj))));
+		Value temp(std::move(obj));
+		operator<<(os, temp);
+		obj = std::move(temp.GetValue<Value::Object>());
+		return os;
+	}
+
+	std::ostream& operator<<(std::ostream& os, Value::Array& arr)
+	{
+		Value temp(std::move(arr));
+		operator<<(os, temp);
+		arr = std::move(temp.GetValue<Value::Array>());
 		return os;
 	}
 
@@ -178,6 +182,7 @@ namespace json
 		case Value::types::ARRAY:
 		{
 			auto& arr = val.GetValue<Value::Array>();
+			Value::SetDepth(val, val.m_nDepth);
 			os << "[\r\n";
 			for (auto itr = arr.begin(); itr != arr.end(); itr++)
 			{
@@ -185,7 +190,7 @@ namespace json
 				os << *itr;
 				if (itr != arr.end() - 1)
 				{
-					os << ", ";	
+					os << ',';	
 				}
 				else
 				{
@@ -210,7 +215,7 @@ namespace json
 				os << '\"' << key << "\": " << value;
 				if (cnt++ != obj.size() - 1)
 				{
-					os << ", ";
+					os << ',';
 				}
 				else
 				{
