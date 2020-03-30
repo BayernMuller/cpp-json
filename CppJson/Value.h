@@ -18,7 +18,7 @@ namespace json
 	{
 		friend Json;
 	public: // definitions
-		enum class value_type { BOOLEAN, INT, DOUBLE, STRING, EMPTY, ARRAY, OBJECT };
+		enum class types { BOOLEAN, INT, DOUBLE, STRING, EMPTY, ARRAY, OBJECT };
 		using Array = std::vector<Value>;
 		using Object = std::map<std::string, Value>;
 		using Null = std::nullptr_t;
@@ -41,7 +41,7 @@ namespace json
 		template<class T>
 		T& GetValue();
 
-		value_type GetType() const;
+		types GetType() const;
 		bool HasValue();
 
 	public: // operators
@@ -54,12 +54,11 @@ namespace json
 		friend std::ostream& operator<<(std::ostream& os, Value& val);
 
 	private:
-		void SpaceDepth(std::ostream& os, int depth);
-		void SetDepth(Object& obj, int depth);
-		void SetDepth(Array& arr, int depth);
+		static void SpaceDepth(std::ostream& os, int depth);
+		static void SetDepth(Value& val, int depth);
+		
 
 	private:
-
 		json_value m_Value;
 		int m_nDepth;
 	};
@@ -75,18 +74,20 @@ namespace json
 	inline Value& Value::operator=(Value&& value)
 	{
 		m_Value = std::move(value.m_Value);
+		m_nDepth = value.m_nDepth;
 		return *this;
 	}
 
 	inline Value& Value::operator=(const Value& value)
 	{
 		m_Value = value.m_Value;
+		m_nDepth = value.m_nDepth;
 		return *this;
 	}
 
-	inline Value::value_type Value::GetType() const
+	inline Value::types Value::GetType() const
 	{
-		return static_cast<Value::value_type>(m_Value.index());
+		return static_cast<Value::types>(m_Value.index());
 	}
 
 	inline bool Value::HasValue()
@@ -107,43 +108,34 @@ namespace json
 	inline void Value::SpaceDepth(std::ostream& os, int depth)
 	{
 		for (int i = 0; i < depth; i++)
-			os << '\t';
+			os << "    ";
 	}
-
-	inline void Value::SetDepth(Object& obj, int depth)
+	
+	inline void Value::SetDepth(Value& val, int depth)
 	{
-		for (auto& [key, val] : obj)
+		static auto isNotValue = 
+			[](Value& v) {return v.GetType() == types::OBJECT || v.GetType() == types::ARRAY; };
+		if (!isNotValue(val))
+			return;
+		val.m_nDepth = depth;
+		if (val.GetType() == types::OBJECT)
 		{
-			switch (val.GetType())
+			for (auto& [key, value] : val.GetValue<Object>())
 			{
-			case value_type::ARRAY:
-				SetDepth(val.GetValue<Array>(), depth + 1);
-				break;
-			case value_type::OBJECT:
-				SetDepth(val.GetValue<Object>(), depth + 1);
-				break;
-			default:
-				val.m_nDepth = depth + 1;
-				break;
+				if (isNotValue(value))
+				{
+					Value::SetDepth(value, depth + 1);
+				}
 			}
 		}
-	}
-
-	inline void Value::SetDepth(Array& arr, int depth)
-	{
-		for (auto& val : arr)
+		else
 		{
-			switch (val.GetType())
+			for (auto& value : val.GetValue<Array>())
 			{
-			case value_type::ARRAY:
-				SetDepth(val.GetValue<Array>(), depth + 1);
-				break;
-			case value_type::OBJECT:
-				SetDepth(val.GetValue<Object>(), depth + 1);
-				break;
-			default:
-				val.m_nDepth = m_nDepth;
-				break;
+				if (isNotValue(value))
+				{
+					Value::SetDepth(value, depth + 1);
+				}
 			}
 		}
 	}
@@ -158,63 +150,77 @@ namespace json
 	{
 		switch (val.GetType())
 		{
-		case Value::value_type::BOOLEAN:
+		case Value::types::BOOLEAN:
 		{
 			os << std::boolalpha << val.GetValue<bool>();
 			break;
 		}
-		case Value::value_type::INT:
+		case Value::types::INT:
 		{
 			os << val.GetValue<int>();
 			break;
 		}
-		case Value::value_type::DOUBLE:
+		case Value::types::DOUBLE:
 		{
 			os << val.GetValue<double>();
 			break;
 		}
-		case Value::value_type::STRING:
+		case Value::types::STRING:
 		{
 			os << '\"' << val.GetValue<std::string>() << '\"';
 			break;
 		}
-		case Value::value_type::EMPTY:
+		case Value::types::EMPTY:
 		{
 			os << "null";
 			break;
 		}
-		case Value::value_type::ARRAY:
+		case Value::types::ARRAY:
 		{
 			auto& arr = val.GetValue<Value::Array>();
 			os << "[\r\n";
 			for (auto itr = arr.begin(); itr != arr.end(); itr++)
 			{
-				val.SpaceDepth(os, val.m_nDepth + 1);
+				Value::SpaceDepth(os, val.m_nDepth + 1);
 				os << *itr;
 				if (itr != arr.end() - 1)
-					os << ", ";
+				{
+					os << ", ";	
+				}
+				else
+				{
+					os << "\r\n";
+					Value::SpaceDepth(os, val.m_nDepth);
+					os << ']';
+					break;
+				}
 				os << "\r\n";
 			}
-			val.SpaceDepth(os, val.m_nDepth);
-			os << ']';
 			break;
 		}
-		case Value::value_type::OBJECT:
+		case Value::types::OBJECT:
 		{
 			int cnt = 0;
 			auto& obj = val.GetValue<Value::Object>();
-			val.SetDepth(obj, 0);
+			Value::SetDepth(val, val.m_nDepth);
 			os << "{\r\n";
-			for (auto& [key, val] : obj)
+			for (auto& [key, value] : obj)
 			{
-				val.SpaceDepth(os, val.m_nDepth + 1);
-				os << '\"' << key << "\": " << val;
+				Value::SpaceDepth(os, val.m_nDepth + 1);
+				os << '\"' << key << "\": " << value;
 				if (cnt++ != obj.size() - 1)
-					os << ',';
+				{
+					os << ", ";
+				}
+				else
+				{
+					os << "\r\n";
+					Value::SpaceDepth(os, val.m_nDepth);
+					os << '}';
+					break;
+				}
 				os << "\r\n";
 			}
-			val.SpaceDepth(os, val.m_nDepth);
-			os << '}';
 			break;
 		}
 		}

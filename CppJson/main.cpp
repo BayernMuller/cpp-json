@@ -26,7 +26,5 @@ int main()
 		{"winning_rate", 99.9}
 	};
 	cout << bayern << endl;
-	cout << endl;
-	cout << bayern["best_players"] << endl;
 	return 0;
 }
