@@ -16,11 +16,5 @@ namespace json
 		{
 			
 		}
-
-	private:
-		static void SetDepth(Object& obj)
-		{
-
-		}
 	};
 }

@@ -21,10 +21,25 @@ int main()
 						 }
 		},
 
-		{"best_players", Array{"lewandowski","muller","alaba"}},
+		{"best_players", Array{
+								   Object{
+											{"name", "Lewandowski"},
+											{"back_number", 9},
+											{"goal", 22},
+											{"assist", 5}
+								   },
+							
+								   Object{
+											{"name", "Muller"},
+											{"back_number", 25},
+											{"goal", 5},
+											{"assist", 18}
+								   }
+							  }
+		},
 		{"is_best", true},
 		{"winning_rate", 99.9}
 	};
-	cout << bayern << endl;
+	std::cout << bayern << std::endl;
 	return 0;
 }
