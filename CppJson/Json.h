@@ -5,34 +5,43 @@
 
 namespace json
 {
-	constexpr Value::Null Null = nullptr;
 	using value_type = Value::types;
 	using Array = Value::Array;
 	using Object = Value::Object;
-	using JsonMaker = Value::Object;
+	using JsonObject = Value::Object;
+	constexpr Value::Null Null = nullptr;
+
+	/* ---------------------------- */
 
 	class Json
 	{
+		using Iter = std::istream_iterator<std::string>;
 	public:
-		static std::string Dumps(JsonMaker& obj)
+		static std::string Dumps(JsonObject& obj)
 		{
 			std::ostringstream oss;
 			oss << obj;
 			return oss.str();
 		}
 
-		static void Parse(std::string src, Object& dst)
+		static JsonObject Parse(std::string src)
 		{
+			JsonObject object;
 			for (char& ch : src)
 			{
-				if (ch == ',' || ch == '\"' || ch == ':')
+				if (ch == ',' || ch == ':')
 					ch = ' ';
 			}
-			std::istringstream iss(src);
-			std::istream_iterator<std::string> begin(iss), end;
+			std::istringstream iss(std::move(src));
+			Iter begin(iss), end;
 			
-			std::vector<std::string> vec(begin, end);
-			std::copy(vec.begin(), vec.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
+			return object;
+		}
+
+	private:
+		static Value ParseValue(Iter& outIter)
+		{
+			
 		}
 	};
 }

@@ -56,8 +56,8 @@ namespace json
 		friend std::ostream& operator<<(std::ostream& os, Value& val);
 
 	private:
-		static void SpaceDepth(std::ostream& os, int depth);
-		static void SetDepth(Value& val, int depth);
+		static void spaceDepth(std::ostream& os, int depth);
+		static void setDepth(Value& val, int depth);
 		
 
 	private:
@@ -107,13 +107,13 @@ namespace json
 		return GetValue<Object>()[key];
 	}
 
-	inline void Value::SpaceDepth(std::ostream& os, int depth)
+	inline void Value::spaceDepth(std::ostream& os, int depth)
 	{
 		for (int i = 0; i < depth; i++)
 			os << "    ";
 	}
 	
-	inline void Value::SetDepth(Value& val, int depth)
+	inline void Value::setDepth(Value& val, int depth)
 	{
 		static auto isNotValue = 
 			[](Value& v) {return v.GetType() == types::OBJECT || v.GetType() == types::ARRAY; };
@@ -124,13 +124,13 @@ namespace json
 		{
 			for (auto& [key, value] : val.GetValue<Object>())
 				if (isNotValue(value))
-					Value::SetDepth(value, depth + 1);
+					Value::setDepth(value, depth + 1);
 		}
 		else
 		{
 			for (auto& value : val.GetValue<Array>())
 				if (isNotValue(value))
-					Value::SetDepth(value, depth + 1);
+					Value::setDepth(value, depth + 1);
 		}
 	}
 
@@ -182,11 +182,11 @@ namespace json
 		case Value::types::ARRAY:
 		{
 			auto& arr = val.GetValue<Value::Array>();
-			Value::SetDepth(val, val.m_nDepth);
+			Value::setDepth(val, val.m_nDepth);
 			os << "[\r\n";
 			for (auto itr = arr.begin(); itr != arr.end(); itr++)
 			{
-				Value::SpaceDepth(os, val.m_nDepth + 1);
+				Value::spaceDepth(os, val.m_nDepth + 1);
 				os << *itr;
 				if (itr != arr.end() - 1)
 				{
@@ -195,7 +195,7 @@ namespace json
 				else
 				{
 					os << "\r\n";
-					Value::SpaceDepth(os, val.m_nDepth);
+					Value::spaceDepth(os, val.m_nDepth);
 					os << ']';
 					break;
 				}
@@ -207,11 +207,11 @@ namespace json
 		{
 			int cnt = 0;
 			auto& obj = val.GetValue<Value::Object>();
-			Value::SetDepth(val, val.m_nDepth);
+			Value::setDepth(val, val.m_nDepth);
 			os << "{\r\n";
 			for (auto& [key, value] : obj)
 			{
-				Value::SpaceDepth(os, val.m_nDepth + 1);
+				Value::spaceDepth(os, val.m_nDepth + 1);
 				os << '\"' << key << "\": " << value;
 				if (cnt++ != obj.size() - 1)
 				{
@@ -220,7 +220,7 @@ namespace json
 				else
 				{
 					os << "\r\n";
-					Value::SpaceDepth(os, val.m_nDepth);
+					Value::spaceDepth(os, val.m_nDepth);
 					os << '}';
 					break;
 				}

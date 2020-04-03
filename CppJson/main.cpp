@@ -6,7 +6,7 @@ using namespace json;
 
 int main()
 {
-	JsonMaker bayern
+	JsonObject bayern
 	{
 		{"trophy", Object{
 							{"domestic", Object{
@@ -42,6 +42,10 @@ int main()
 	};
 
 	string str = Json::Dumps(bayern);
-	cout << str << endl;
+	//cout << str << endl;
+
+	Object obj;
+	auto JSON = Json::Parse(str);
+	
 	return 0;
 }
