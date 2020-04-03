@@ -8,7 +8,7 @@ namespace json
 	using value_type = Value::types;
 	using Array = Value::Array;
 	using Object = Value::Object;
-	using JsonObject = Value::Object;
+	using JsonCreator = Value::Object;
 	constexpr Value::Null Null = nullptr;
 
 	/* ---------------------------- */
@@ -17,24 +17,24 @@ namespace json
 	{
 		using Iter = std::istream_iterator<std::string>;
 	public:
-		static std::string Dumps(JsonObject& obj)
+		template<class T>
+		static std::string Dumps(T& obj)
 		{
 			std::ostringstream oss;
 			oss << obj;
 			return oss.str();
 		}
 
-		static JsonObject Parse(std::string src)
+		static Value Parse(std::string src)
 		{
-			JsonObject object;
 			for (char& ch : src)
 			{
 				if (ch == ',' || ch == ':')
 					ch = ' ';
 			}
 			std::istringstream iss(std::move(src));
-			Iter begin(iss), end;
-			return object;
+			Iter begin(iss);
+			return ParseObject(begin);
 		}
 
 	public: // public is just for test

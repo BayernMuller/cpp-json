@@ -6,7 +6,7 @@ using namespace json;
 
 int main()
 {
-	JsonObject bayern
+	JsonCreator bayern
 	{
 		{"trophy", Object{
 							{"domestic", Object{
@@ -42,10 +42,7 @@ int main()
 	};
 
 	
-	istringstream iss("true test");
-	istream_iterator<string> iter(iss);
-	auto boolean = Json::ParseBoolean(iter);
-	cout << boolean << endl;
-	cout << *iter << endl;
+	auto str = Json::Dumps(bayern);
+	cout << str << endl;
 	return 0;
 }
