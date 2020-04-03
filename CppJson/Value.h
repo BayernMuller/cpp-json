@@ -10,13 +10,8 @@
 
 namespace json
 {
-	class Json;
-
-	/*  --------------------------------  */
-
 	class Value
 	{
-		friend Json;
 	public: // definitions
 		enum class types { BOOLEAN, INT, DOUBLE, STRING, EMPTY, ARRAY, OBJECT };
 		using Array = std::vector<Value>;
