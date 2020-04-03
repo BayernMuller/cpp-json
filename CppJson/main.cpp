@@ -41,11 +41,11 @@ int main()
 		{"winning_rate", 99.9}
 	};
 
-	string str = Json::Dumps(bayern);
-	//cout << str << endl;
-
-	Object obj;
-	auto JSON = Json::Parse(str);
 	
+	istringstream iss("true test");
+	istream_iterator<string> iter(iss);
+	auto boolean = Json::ParseBoolean(iter);
+	cout << boolean << endl;
+	cout << *iter << endl;
 	return 0;
 }
