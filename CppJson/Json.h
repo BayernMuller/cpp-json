@@ -34,7 +34,9 @@ namespace json
 
 		static Json ReadJson(std::istream& file)
 		{
-			
+			istreambuf_iterator<char> begin(file), end;
+			string str(begin, end);
+			return Parse(std::move(str));
 		}
 
 		static Value Parse(std::string src)
