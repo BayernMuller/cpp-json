@@ -1,6 +1,21 @@
 {
 	"best_players" : [ "Lewandowski", "Muller", "Neuer" ],
-	"manager" : "Hansi_Flick",
+	"manager" : "Flick",
 	"is_best" : true,
-	"captain" : "Neuer"
+	"captain" : "Neuer",
+	"trophies" : {
+		"domestic" : {
+			"bundesliga" : 29,
+			"pokal" : 19
+		},
+		"europe" : {
+			"championsleague" : 5,
+			"europaleague" : 1
+		}
+	},
+	"treble" : {
+		"is_winner" : true,
+		"season" : "2012/13"
+	},
+	"winning_rate" : 999e-1
 }

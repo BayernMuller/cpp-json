@@ -1,6 +1,7 @@
 #pragma once
 #include "Value.h"
 #include <sstream>
+#include <fstream>
 #include <iterator>
 
 namespace json
@@ -26,6 +27,16 @@ namespace json
 			return oss.str();
 		}
 
+		static bool WriteJson(std::ofstream& file, Json& json)
+		{
+			return (file << json).operator bool();
+		}
+
+		static Json ReadJson(std::istream& file)
+		{
+			
+		}
+
 		static Value Parse(std::string src)
 		{
 			for (char& ch : src)
@@ -35,10 +46,10 @@ namespace json
 			}
 			std::istringstream iss(std::move(src));
 			Iter begin(iss);
-			return ParseObject(begin);
+			return ParseValue(begin);
 		}
 
-	public: // public is just for test
+	private:
 		static Value ParseValue(Iter& outIter)
 		{
 			char first = outIter->front();
@@ -67,8 +78,7 @@ namespace json
 				outIter++;
 				obj[key] = ParseValue(outIter);
 			}
-			outIter++;
-			return Value(std::move(obj)); // NRVO
+			return Value(std::move(obj)); // RVO
 		}
 
 		static Value ParseArray(Iter& outIter)
@@ -79,21 +89,19 @@ namespace json
 			{
 				arr.push_back(std::move(ParseValue(outIter)));
 			}
-			outIter++;
 			return Value(std::move(arr)); // RVO
 		}
 
-		static Value ParseString(Iter& outIter)
+		static Value ParseString(Iter& iter)
 		{
-			std::string str(outIter->begin() + 1, outIter->end() - 1);
-			outIter++;
+			std::string str(iter->begin() + 1, iter->end() - 1);
 			return Value(str.c_str()); // RVO
 		}
 
-		static Value ParseNumber(Iter& outIter)
+		static Value ParseNumber(Iter& iter)
 		{
-			std::istringstream iss(*outIter);
-			for (const auto& ch : *outIter)
+			std::istringstream iss(*iter);
+			for (const auto& ch : *iter)
 			{
 				if (ch == '.' || ch == 'e' || ch == 'E')
 				{
@@ -107,15 +115,14 @@ namespace json
 			return Value(integer); // RVO
 		}
 
-		static Value ParseBoolean(Iter& outIter)
+		static Value ParseBoolean(Iter& iter)
 		{
-			return (outIter++)->front() == 't';
+			return Value(iter->front() == 't'); // RVO
 		}
 
-		static Value ParseNull(Iter& outIter)
+		static Value ParseNull(Iter& iter)
 		{
-			outIter++;
-			return Value(Null);
+			return Value(Null); // RVO
 		}
 	};
 }

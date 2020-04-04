@@ -6,11 +6,11 @@ using namespace json;
 
 int main()
 {
-	ifstream file("Bayern.json");
-	istreambuf_iterator<char> begin(file), end;
-	string str(begin, end);
-	cout << str << endl;
-	Json myJson = Utility::Parse(str);
-	cout << myJson << endl;
+	
+
+	cout << bayern["trophies"]["domestic"] << endl;
+	cout << bayern["best_players"] << endl;
+	cout << bayern["treble"] << endl;
+	
 	return 0;
 }

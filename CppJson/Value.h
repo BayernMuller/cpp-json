@@ -54,7 +54,6 @@ namespace json
 		static void spaceDepth(std::ostream& os, int depth);
 		static void setDepth(Value& val, int depth);
 		
-
 	private:
 		json_value m_Value;
 		int m_nDepth;
