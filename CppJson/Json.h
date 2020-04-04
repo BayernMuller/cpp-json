@@ -36,7 +36,7 @@ namespace json
 		{
 			std::istreambuf_iterator<char> begin(file), end;
 			std::string str(begin, end);
-			return Parse(std::move(str));
+			return Parse(std::move(str)); // RVO
 		}
 
 		static Value Parse(std::string src)
@@ -48,7 +48,13 @@ namespace json
 			}
 			std::istringstream iss(std::move(src));
 			Iter begin(iss);
-			return ParseValue(begin);
+			return ParseValue(begin); // RVO
+		}
+
+		template<class T>
+		static Json ToJson(T&& value)
+		{
+			return Json(std::forward<T>(value)); // RVO
 		}
 
 	private:

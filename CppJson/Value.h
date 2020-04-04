@@ -126,22 +126,6 @@ namespace json
 		}
 	}
 
-	std::ostream& operator<<(std::ostream& os, Value::Object& obj)
-	{
-		Value temp(std::move(obj));
-		operator<<(os, temp);
-		obj = std::move(temp.GetValue<Value::Object>());
-		return os;
-	}
-
-	std::ostream& operator<<(std::ostream& os, Value::Array& arr)
-	{
-		Value temp(std::move(arr));
-		operator<<(os, temp);
-		arr = std::move(temp.GetValue<Value::Array>());
-		return os;
-	}
-
 	std::ostream& operator<<(std::ostream& os, Value& val)
 	{
 		switch (val.GetType())
