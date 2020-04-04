@@ -29,13 +29,13 @@ namespace json
 
 		static bool WriteJson(std::ofstream& file, Json& json)
 		{
-			return (file << json).operator bool();
+			return static_cast<bool>(file << json);
 		}
 
-		static Json ReadJson(std::istream& file)
+		static Json LoadJson(std::ifstream& file)
 		{
-			istreambuf_iterator<char> begin(file), end;
-			string str(begin, end);
+			std::istreambuf_iterator<char> begin(file), end;
+			std::string str(begin, end);
 			return Parse(std::move(str));
 		}
 
@@ -127,4 +127,11 @@ namespace json
 			return Value(Null); // RVO
 		}
 	};
+
+	/* ------------------ */
+
+	Json operator "" _Json(const char* str, std::size_t)
+	{
+		return Utility::Parse(str);
+	}
 }

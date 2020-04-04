@@ -1,12 +1,9 @@
 #pragma once
-#include <initializer_list>
 #include <variant>
 #include <vector>
-#include <cassert>
 #include <string>
 #include <ios>
 #include <map>
-#include <iostream>
 
 namespace json
 {
@@ -44,11 +41,12 @@ namespace json
 	public: // operators
 		Value& operator=(Value&& value);
 		Value& operator=(const Value& value);
-		Value& operator[](std::size_t index);
+		Value& operator[](int index);
 		Value& operator[](const char* key);
 
 	public: // friend functions
 		friend std::ostream& operator<<(std::ostream& os, Value& val);
+		friend std::ostream& operator<<(std::ostream& os, Value&& val);
 
 	private:
 		static void spaceDepth(std::ostream& os, int depth);
@@ -91,7 +89,7 @@ namespace json
 		return !m_Value.valueless_by_exception();
 	}
 
-	inline Value& Value::operator[](std::size_t index)
+	inline Value& Value::operator[](int index)
 	{
 		return GetValue<Array>()[index];
 	}
@@ -177,7 +175,7 @@ namespace json
 		{
 			auto& arr = val.GetValue<Value::Array>();
 			Value::setDepth(val, val.m_nDepth);
-			os << "[\r\n";
+			os << "[\n";
 			for (auto itr = arr.begin(); itr != arr.end(); itr++)
 			{
 				Value::spaceDepth(os, val.m_nDepth + 1);
@@ -188,12 +186,12 @@ namespace json
 				}
 				else
 				{
-					os << "\r\n";
+					os << "\n";
 					Value::spaceDepth(os, val.m_nDepth);
 					os << ']';
 					break;
 				}
-				os << "\r\n";
+				os << "\n";
 			}
 			break;
 		}
@@ -202,7 +200,7 @@ namespace json
 			int cnt = 0;
 			auto& obj = val.GetValue<Value::Object>();
 			Value::setDepth(val, val.m_nDepth);
-			os << "{\r\n";
+			os << "{\n";
 			for (auto& [key, value] : obj)
 			{
 				Value::spaceDepth(os, val.m_nDepth + 1);
@@ -213,17 +211,22 @@ namespace json
 				}
 				else
 				{
-					os << "\r\n";
+					os << "\n";
 					Value::spaceDepth(os, val.m_nDepth);
 					os << '}';
 					break;
 				}
-				os << "\r\n";
+				os << "\n";
 			}
 			break;
 		}
 		}
 		return os;
+	}
+
+	std::ostream& operator<<(std::ostream& os, Value&& val)
+	{
+		return operator<<(os, *(&val));
 	}
 
 }
