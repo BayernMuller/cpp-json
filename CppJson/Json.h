@@ -130,7 +130,7 @@ namespace json
 		
 		static std::string takeString(Iter& outIter)
 		{
-			Iter end;
+			static const Iter end;
 			std::string str;
 			while (outIter != end)
 			{
