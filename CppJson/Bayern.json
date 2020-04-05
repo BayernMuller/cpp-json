@@ -1,5 +1,5 @@
 {
-	"best_players" : [ "Lewandowski", "Muller", "Neuer" ],
+	"best_players" : ["Lewandowski", "Muller", "Neuer"],
 	"manager" : "Flick",
 	"is_best" : true,
 	"captain" : "Neuer",

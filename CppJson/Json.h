@@ -41,14 +41,11 @@ namespace json
 
 		static Value Parse(std::string src)
 		{
-			for (char& ch : src)
-			{
-				if (ch == ',' || ch == ':' || ch == '\t')
-					ch = ' ';
-			}
-			std::istringstream iss(std::move(src));
+			std::istringstream iss;
+			refineString(src);
+			iss.str(src);
 			Iter begin(iss);
-			return ParseValue(begin); // RVO
+			return parseValue(begin); // RVO
 		}
 
 		template<class T>
@@ -58,24 +55,24 @@ namespace json
 		}
 
 	private:
-		static Value ParseValue(Iter& outIter)
+		static Value parseValue(Iter& outIter)
 		{
 			char first = outIter->front();
 			static std::map<char, Value(*)(Iter&)> parse
 			{
-				{'{', ParseObject},
-				{'[', ParseArray},
-				{'\"',ParseString},
-				{'n', ParseNull},
-				{'t', ParseBoolean},
-				{'f', ParseBoolean},
+				{'{', parseObject},
+				{'[', parseArray},
+				{'\"',parseString},
+				{'n', parseNull},
+				{'t', parseBoolean},
+				{'f', parseBoolean},
 			};
 			if (std::isdigit(first) || first == '-')
-				return ParseNumber(outIter);
+				return parseNumber(outIter);
 			return parse[first](outIter);
 		}
 
-		static Value ParseObject(Iter& outIter)
+		static Value parseObject(Iter& outIter)
 		{
 			Object obj;
 			outIter++; // exclude '{'
@@ -84,29 +81,29 @@ namespace json
 				auto& value = *outIter;
 				std::string key(value.begin() + 1, value.end() - 1);
 				outIter++;
-				obj[key] = ParseValue(outIter);
+				obj[key] = parseValue(outIter);
 			}
 			return Value(std::move(obj)); // RVO
 		}
 
-		static Value ParseArray(Iter& outIter)
+		static Value parseArray(Iter& outIter)
 		{
 			Array arr;
 			outIter++; // exclude '['
 			for (; (*outIter)[0] != ']'; outIter++)
 			{
-				arr.push_back(std::move(ParseValue(outIter)));
+				arr.push_back(std::move(parseValue(outIter)));
 			}
 			return Value(std::move(arr)); // RVO
 		}
 
-		static Value ParseString(Iter& iter)
+		static Value parseString(Iter& iter)
 		{
 			std::string str(iter->begin() + 1, iter->end() - 1);
 			return Value(str.c_str()); // RVO
 		}
 
-		static Value ParseNumber(Iter& iter)
+		static Value parseNumber(Iter& iter)
 		{
 			std::istringstream iss(*iter);
 			for (const auto& ch : *iter)
@@ -123,15 +120,45 @@ namespace json
 			return Value(integer); // RVO
 		}
 
-		static Value ParseBoolean(Iter& iter)
+		static Value parseBoolean(Iter& iter)
 		{
 			return Value(iter->front() == 't'); // RVO
 		}
 
-		static Value ParseNull(Iter& iter)
+		static Value parseNull(Iter& iter)
 		{
 			return Value(Null); // RVO
 		}
+		
+		static void refineString(std::string& str)
+		{
+			for (auto itr = str.begin(); itr != str.end(); itr++)
+			{
+				char& ch = *itr;
+				if (ch == ',' || ch == ':' || ch == '\t')
+				{
+					ch = ' ';
+				}
+				else if (ch == '[' || ch == '{')
+				{
+					auto next = itr + 1;
+					if (*next != ' ' && *next != '\n')
+					{
+						itr = str.insert(next, ' ');
+					}
+				}
+				else if (ch == ']' || ch == '}')
+				{
+					auto prev = itr - 1;
+					if (*prev != ' ' && *prev != '\n')
+					{
+						str.insert(itr, ' ');
+						itr++;
+					}
+				}
+			}
+		}
+
 	};
 
 	/* ------------------ */
