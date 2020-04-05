@@ -170,12 +170,12 @@ namespace json
 				}
 				else
 				{
-					os << "\n";
+					os << '\n';
 					Value::spaceDepth(os, val.m_nDepth);
 					os << ']';
 					break;
 				}
-				os << "\n";
+				os << '\n';
 			}
 			break;
 		}
@@ -195,12 +195,12 @@ namespace json
 				}
 				else
 				{
-					os << "\n";
+					os << '\n';
 					Value::spaceDepth(os, val.m_nDepth);
 					os << '}';
 					break;
 				}
-				os << "\n";
+				os << '\n';
 			}
 			break;
 		}
