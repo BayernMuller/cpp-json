@@ -16,7 +16,7 @@ namespace json
 	/* ---------------------------- */
 
 	class Utility
-	{
+	{ 
 		using Iter = std::istream_iterator<std::string>;
 	public:
 		template<class T>
@@ -39,7 +39,7 @@ namespace json
 			return Parse(std::move(str)); // RVO
 		}
 
-		static Value Parse(std::string src)
+		static Json Parse(std::string src)
 		{
 			std::istringstream iss;
 			refineString(src);
@@ -78,8 +78,7 @@ namespace json
 			outIter++; // exclude '{'
 			for (; (*outIter)[0] != '}'; outIter++)
 			{
-				auto& value = *outIter;
-				std::string key(value.begin() + 1, value.end() - 1);
+				std::string key = takeString(outIter);
 				outIter++;
 				obj[key] = parseValue(outIter);
 			}
@@ -97,10 +96,9 @@ namespace json
 			return Value(std::move(arr)); // RVO
 		}
 
-		static Value parseString(Iter& iter)
+		static Value parseString(Iter& outIter)
 		{
-			std::string str(iter->begin() + 1, iter->end() - 1);
-			return Value(str.c_str()); // RVO
+			return Value(std::move(takeString(outIter))); // RVO
 		}
 
 		static Value parseNumber(Iter& iter)
@@ -130,6 +128,25 @@ namespace json
 			return Value(Null); // RVO
 		}
 		
+		static std::string takeString(Iter& outIter)
+		{
+			Iter end;
+			std::string str;
+			while (outIter != end)
+			{
+				str.append(*outIter);
+				if (outIter->back() != '\"')
+				{
+					str.append(" ");
+					outIter++;
+					continue;
+				}
+				break;
+			}
+			str.assign(str.begin() + 1, str.end() - 1);
+			return str; // NRVO
+		}
+
 		static void refineString(std::string& str)
 		{
 			for (auto itr = str.begin(); itr != str.end(); itr++)

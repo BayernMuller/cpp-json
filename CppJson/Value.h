@@ -17,18 +17,20 @@ namespace json
 		using json_value = std::variant<bool, int, double, std::string, Null, Array, Object>;
 
 	public: // constructors
-		Value(bool value)		: m_Value(value), m_nDepth(0) {}
-		Value(int value)		: m_Value(value), m_nDepth(0) {}
-		Value(double value)		: m_Value(value), m_nDepth(0) {}
-		Value(const char* str)	: m_Value(std::move(std::string(str))), m_nDepth(0) {}
-		Value(Null value)		: m_Value(value), m_nDepth(0) {}
-		Value(Array&& arr)		: m_Value(std::move(arr)), m_nDepth(0) {}
-		Value(Object&& obj)		: m_Value(std::move(obj)), m_nDepth(0) {}
-		Value(const Array& arr) : m_Value(arr), m_nDepth(0) {}
-		Value(const Object& obj): m_Value(obj), m_nDepth(0) {}
-		Value(const Value& value) : m_Value(value.m_Value), m_nDepth(value.m_nDepth) {}
-		Value(Value&& value) : m_Value(std::move(value.m_Value)), m_nDepth(value.m_nDepth) {}
-		Value() : m_Value(nullptr), m_nDepth(0) {}
+		Value(bool value)				: m_Value(value), m_nDepth(0) {}
+		Value(int value)				: m_Value(value), m_nDepth(0) {}
+		Value(double value)				: m_Value(value), m_nDepth(0) {}
+		Value(const char* str)			: m_Value(std::move(std::string(str))), m_nDepth(0) {}
+		Value(Null value)				: m_Value(value), m_nDepth(0) {}
+		Value(std::string&& str)		: m_Value(std::move(str)), m_nDepth(0) {}
+		Value(Array&& arr)				: m_Value(std::move(arr)), m_nDepth(0) {}
+		Value(Object&& obj)				: m_Value(std::move(obj)), m_nDepth(0) {}
+		Value(const std::string& str)	: m_Value(str), m_nDepth(0) {}
+		Value(const Array& arr)			: m_Value(arr), m_nDepth(0) {}
+		Value(const Object& obj)		: m_Value(obj), m_nDepth(0) {}
+		Value(const Value& value)		: m_Value(value.m_Value), m_nDepth(value.m_nDepth) {}
+		Value(Value&& value)			: m_Value(std::move(value.m_Value)), m_nDepth(value.m_nDepth) {}
+		Value()							: m_Value(nullptr), m_nDepth(0) {}
 
 
 	public: // public funtions
