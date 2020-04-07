@@ -5,8 +5,7 @@ using namespace json;
 
 int main()
 {
-	ifstream file("Bayern.json");
-	auto json = Utility::LoadJson(file);
+	auto json = Utility::Parse("{\"numbers\":[1,2,3]}");
 	cout << json << endl;
 	return 0;
 }

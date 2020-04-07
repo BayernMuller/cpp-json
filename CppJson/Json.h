@@ -27,6 +27,12 @@ namespace json
 			return oss.str();
 		}
 
+		template<class T>
+		static Json ToJson(T&& value)
+		{
+			return Json(std::forward<T>(value)); // RVO
+		}
+
 		static bool WriteJson(std::ofstream& file, Json& json)
 		{
 			return static_cast<bool>(file << json);
@@ -48,11 +54,6 @@ namespace json
 			return parseValue(begin); // RVO
 		}
 
-		template<class T>
-		static Json ToJson(T&& value)
-		{
-			return Json(std::forward<T>(value)); // RVO
-		}
 
 	private:
 		static Value parseValue(Iter& outIter)
@@ -134,10 +135,10 @@ namespace json
 			std::string str;
 			while (outIter != end)
 			{
-				str.append(*outIter);
+				str.append(std::move(*outIter));
 				if (outIter->back() != '\"')
 				{
-					str.append(" ");
+					str += ' ';
 					outIter++;
 					continue;
 				}
