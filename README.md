@@ -73,19 +73,17 @@ int main()
 Code:
 
 ```C++
-#include <iostream>
-#include "Json.h"
-using namespace std;
-using namespace json;
 int main()
 {
 	JsonCreator my_json
 	{
 		{"Is 2018 worldcup the worst", true}
 	};
-
-	cout << my_json << endl;
-    // Printing at std::ostream.
+	// You can't print JsonCreator directly.
+	// operator<< only accepts Json's lvalue-reference
+	Json json = Utility::ToJson(my_json);
+	cout << json << endl;
+	// Printing at std::ostream.
 	return 0;
 }
 ```
@@ -116,8 +114,9 @@ int main()
 		},
 		{"best_players", Array{"lewandowski", "muller", "alaba"}}
 	};
-
-	cout << my_json << endl;
+	Json json = Utility::ToJson(std::move(my_json));
+	// Move Construct. If you will not use JsonCreator, you'd better use move.
+	cout << json << endl;
 	return 0;
 }
 ```
@@ -209,6 +208,62 @@ int main()
 	string str = Utility::Dumps(my_json);
 	return 0;
 }
+```
+
+
+
+**Accessing each values**
+
+Code:
+
+```c++
+int main()
+{
+	JsonCreator my_json
+	{
+		{"int", 10},
+		{"double", 99e-1},
+		{"empty", nullptr},
+		{"string", "text"},
+		{"boolean", false},
+		{"array", Array{1, true, "bayern"}},
+		{"object", Object{ {"changmo", "god"} }}
+	};
+	Json json = Utility::ToJson(std::move(my_json));
+	cout << json["int"] << endl;
+	cout << json["double"] << endl;
+	cout << json["empty"] << endl;
+	cout << json["string"] << endl;
+	cout << json["boolean"] << endl;
+	cout << json["array"] << endl;
+	cout << json["object"] << endl;
+	cout << endl;
+
+	cout << json["array"][2] << endl;
+	cout << json["object"]["changmo"] << endl;
+	return 0;
+}
+```
+
+Result:
+
+```json
+10
+9.9
+null
+"text"
+false
+[
+    1,
+    true,
+    "bayern"
+]
+{
+    "changmo": "god"
+}
+
+"bayern"
+"god"
 ```
 
 
