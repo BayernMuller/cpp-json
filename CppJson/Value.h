@@ -48,7 +48,6 @@ namespace json
 
 	public: // friend functions
 		friend std::ostream& operator<<(std::ostream& os, Value& val);
-		friend std::ostream& operator<<(std::ostream& os, Value&& val);
 
 	private:
 		static void spaceDepth(std::ostream& os, int depth);
@@ -209,10 +208,4 @@ namespace json
 		}
 		return os;
 	}
-
-	std::ostream& operator<<(std::ostream& os, Value&& val)
-	{
-		return operator<<(os, *(&val));
-	}
-
 }
