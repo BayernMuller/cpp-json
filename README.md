@@ -31,33 +31,31 @@ int main()
 	json::JsonCreator bayern
 	{
 		{"trophy", json::Object{
-							{"domestic", json::Object{
-								{"bundesliga", 29},
-								{"pokal", 19}}
-							},
-
-							{"europe", json::Object{
-								{"supercup", 7},
-								{"championsleague", 5}}
-							}
-						 }
+				{"domestic", json::Object{
+					{"bundesliga", 29},
+					{"pokal", 19}}
+				},
+				{"europe", json::Object{
+					{"supercup", 7},
+					{"championsleague", 5}}
+				}
+			}
 		},
 
 		{"best_players", json::Array{
-								   json::Object{
-											{"name", "Lewandowski"},
-											{"back_number", 9},
-											{"goal", 22},
-											{"assist", 5}
-								   },
-
-								   json::Object{
-											{"name", "Muller"},
-											{"back_number", 25},
-											{"goal", 5},
-											{"assist", 18}
-								   }
-							  }
+				json::Object{
+					{"name", "Lewandowski"},
+					{"back_number", 9},
+					{"goal", 22},
+					{"assist", 5}
+				},
+				json::Object{
+					{"name", "Muller"},
+					{"back_number", 25},
+					{"goal", 5},
+					{"assist", 18}
+				}
+			}
 		},
 		{"is_best", true},
 		{"winning_rate", 99.9}
@@ -107,10 +105,10 @@ int main()
 	{
 		{"best_clup", "FC Bayern Munich"},
 		{"best_leagues", Object{
-							{"europe", "champions league"},
-							{"germany", "bundesliga"},
-							{"other", "trash"}
-						 }
+				{"europe", "champions league"},
+				{"germany", "bundesliga"},
+				{"other", "trash"}
+			}
 		},
 		{"best_players", Array{"lewandowski", "muller", "alaba"}}
 	};
