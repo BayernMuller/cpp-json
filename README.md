@@ -11,7 +11,7 @@ Header-only JSON library for C++17
 </span>
 
 <p align="center">
-    <img src="https://github.com/bayernmuller/cpp-json/actions/workflows/build.yaml/badge.svg"/>
+    <img src="https://github.com/bayernmuller/cpp-json/actions/workflows/build.yml/badge.svg"/>
     <img src="https://img.shields.io/github/license/bayernmuller/cpp-json"/>
 </p>
 
