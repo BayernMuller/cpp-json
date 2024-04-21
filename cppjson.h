@@ -32,6 +32,16 @@ namespace json
 		Value(const Value& value)		: value_(value.value_), depth_(value.depth_) {}
 		Value(Value&& value)			: value_(std::move(value.value_)), depth_(value.depth_) {}
 		Value()							: value_(nullptr), depth_(0) {}
+		
+		Value(std::initializer_list<std::pair<const char*, Value>> list)
+			: value_(Object()), depth_(0)
+		{
+			Object obj;
+			for (auto& [key, value] : list)
+				obj[key] = value;
+			value_ = std::move(obj);
+		}
+
 
 
 	public: // public funtions
@@ -210,7 +220,6 @@ namespace json
 		return os;
 	}
 
-	using value_type = Value::Types;
 	using Array = Value::Array;
 	using Object = Value::Object;
 	using Json = Value;
@@ -232,24 +241,24 @@ namespace json
 		}
 
 		template<class T>
-		static Json ToJson(T&& value)
+		static Value ToJson(T&& value)
 		{
-			return Json(std::forward<T>(value)); // RVO
+			return Value(std::forward<T>(value)); // RVO
 		}
 
-		static bool WriteJson(std::ofstream& file, Json& json)
+		static bool WriteJson(std::ofstream& file, Value& json)
 		{
 			return static_cast<bool>(file << json);
 		}
 
-		static Json LoadJson(std::ifstream& file)
+		static Value LoadJson(std::ifstream& file)
 		{
 			std::istreambuf_iterator<char> begin(file), end;
 			std::string str(begin, end);
 			return Parse(std::move(str)); // RVO
 		}
 
-		static Json Parse(std::string src)
+		static Value Parse(std::string src)
 		{
 			std::istringstream iss;
 			refineString(src);
@@ -385,7 +394,7 @@ namespace json
 
 	/* ------------------ */
 
-	Json operator "" _Json(const char* str, std::size_t)
+	Value operator "" _Json(const char* str, std::size_t)
 	{
 		return Utility::Parse(str);
 	}
