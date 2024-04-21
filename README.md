@@ -2,6 +2,8 @@
     <img src='docs/logo.svg' width='100%' height='100%'/>
 </p>
 
+---
+
 <span align="center">
 
 Header-only JSON library for C++17
@@ -34,6 +36,10 @@ Header-only JSON library for C++17
     * `make`
 	* `sudo make install`
 
+##### Run example code
+* After building the library, build directory will contain an example executable.
+	* `./example_main`
+
 ### Usage
 
 ##### Creating JSON
@@ -60,17 +66,18 @@ auto coach = json["best_coach"]["name"];
 ```cpp
 json["best_coach"]["name"] = "Jupp Heynckes";
 json["best_coach"]["age"] = 75;
-json["best_players"].push_back("Joshua Kimmich");
+json["best_players"].GetValue<Array>().push_back("Joshua Kimmich");
 ```
 
 ##### Converting string to JSON
 ```cpp
 std::string json_str = R"(
 {
-	"best_club": "FC Bayern"
+    "best_club": "FC Bayern"
 }
 )";
-Json json = Json::Parse(json_str);
+Json json = Utility::Parse(json_str);
+std::cout << json["best_club"] << std::endl;
 ```
 
 
