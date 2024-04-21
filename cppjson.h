@@ -11,34 +11,34 @@ namespace json
 	class Value
 	{
 	public: // definitions
-		enum class types { BOOLEAN, INT, DOUBLE, STRING, EMPTY, ARRAY, OBJECT };
+		enum class Types { BOOLEAN, INT, DOUBLE, STRING, EMPTY, ARRAY, OBJECT };
 		using Array = std::vector<Value>;
 		using Object = std::map<std::string, Value>;
 		using Null = std::nullptr_t;
-		using json_value = std::variant<bool, int, double, std::string, Null, Array, Object>;
+		using JsonValue = std::variant<bool, int, double, std::string, Null, Array, Object>;
 
 	public: // constructors
-		Value(bool value)				: m_Value(value), m_nDepth(0) {}
-		Value(int value)				: m_Value(value), m_nDepth(0) {}
-		Value(double value)				: m_Value(value), m_nDepth(0) {}
-		Value(const char* str)			: m_Value(std::move(std::string(str))), m_nDepth(0) {}
-		Value(Null value)				: m_Value(value), m_nDepth(0) {}
-		Value(std::string&& str)		: m_Value(std::move(str)), m_nDepth(0) {}
-		Value(Array&& arr)				: m_Value(std::move(arr)), m_nDepth(0) {}
-		Value(Object&& obj)				: m_Value(std::move(obj)), m_nDepth(0) {}
-		Value(const std::string& str)	: m_Value(str), m_nDepth(0) {}
-		Value(const Array& arr)			: m_Value(arr), m_nDepth(0) {}
-		Value(const Object& obj)		: m_Value(obj), m_nDepth(0) {}
-		Value(const Value& value)		: m_Value(value.m_Value), m_nDepth(value.m_nDepth) {}
-		Value(Value&& value)			: m_Value(std::move(value.m_Value)), m_nDepth(value.m_nDepth) {}
-		Value()							: m_Value(nullptr), m_nDepth(0) {}
+		Value(bool value)				: value_(value), depth_(0) {}
+		Value(int value)				: value_(value), depth_(0) {}
+		Value(double value)				: value_(value), depth_(0) {}
+		Value(const char* str)			: value_(std::move(std::string(str))), depth_(0) {}
+		Value(Null value)				: value_(value), depth_(0) {}
+		Value(std::string&& str)		: value_(std::move(str)), depth_(0) {}
+		Value(Array&& arr)				: value_(std::move(arr)), depth_(0) {}
+		Value(Object&& obj)				: value_(std::move(obj)), depth_(0) {}
+		Value(const std::string& str)	: value_(str), depth_(0) {}
+		Value(const Array& arr)			: value_(arr), depth_(0) {}
+		Value(const Object& obj)		: value_(obj), depth_(0) {}
+		Value(const Value& value)		: value_(value.value_), depth_(value.depth_) {}
+		Value(Value&& value)			: value_(std::move(value.value_)), depth_(value.depth_) {}
+		Value()							: value_(nullptr), depth_(0) {}
 
 
 	public: // public funtions
 		template<class T>
 		T& GetValue();
 
-		types GetType() const;
+		Types GetType() const;
 		bool HasValue();
 
 	public: // operators
@@ -55,8 +55,8 @@ namespace json
 		static void setDepth(Value& val, int depth);
 		
 	private:
-		json_value m_Value;
-		int m_nDepth;
+		JsonValue value_;
+		int depth_;
 	};
 
 	///////////////////////////////////////////////////////
@@ -64,31 +64,31 @@ namespace json
 	template<class T>
 	inline T& Value::GetValue()
 	{
-		return std::get<T>(m_Value);
+		return std::get<T>(value_);
 	}
 
 	inline Value& Value::operator=(Value&& value)
 	{
-		m_Value = std::move(value.m_Value);
-		m_nDepth = value.m_nDepth;
+		value_ = std::move(value.value_);
+		depth_ = value.depth_;
 		return *this;
 	}
 
 	inline Value& Value::operator=(const Value& value)
 	{
-		m_Value = value.m_Value;
-		m_nDepth = value.m_nDepth;
+		value_ = value.value_;
+		depth_ = value.depth_;
 		return *this;
 	}
 
-	inline Value::types Value::GetType() const
+	inline Value::Types Value::GetType() const
 	{
-		return static_cast<Value::types>(m_Value.index());
+		return static_cast<Value::Types>(value_.index());
 	}
 
 	inline bool Value::HasValue()
 	{
-		return !m_Value.valueless_by_exception();
+		return !value_.valueless_by_exception();
 	}
 
 	inline Value& Value::operator[](int index)
@@ -110,11 +110,11 @@ namespace json
 	inline void Value::setDepth(Value& val, int depth)
 	{
 		static auto isNotValue = 
-			[](Value& v) {return v.GetType() == types::OBJECT || v.GetType() == types::ARRAY; };
+			[](Value& v) {return v.GetType() == Types::OBJECT || v.GetType() == Types::ARRAY; };
 		if (!isNotValue(val))
 			return;
-		val.m_nDepth = depth;
-		if (val.GetType() == types::OBJECT)
+		val.depth_ = depth;
+		if (val.GetType() == Types::OBJECT)
 		{
 			for (auto& [key, value] : val.GetValue<Object>())
 				if (isNotValue(value))
@@ -132,39 +132,39 @@ namespace json
 	{
 		switch (val.GetType())
 		{
-		case Value::types::BOOLEAN:
+		case Value::Types::BOOLEAN:
 		{
 			os << std::boolalpha << val.GetValue<bool>();
 			break;
 		}
-		case Value::types::INT:
+		case Value::Types::INT:
 		{
 			os << val.GetValue<int>();
 			break;
 		}
-		case Value::types::DOUBLE:
+		case Value::Types::DOUBLE:
 		{
 			os << val.GetValue<double>();
 			break;
 		}
-		case Value::types::STRING:
+		case Value::Types::STRING:
 		{
 			os << '\"' << val.GetValue<std::string>() << '\"';
 			break;
 		}
-		case Value::types::EMPTY:
+		case Value::Types::EMPTY:
 		{
 			os << "null";
 			break;
 		}
-		case Value::types::ARRAY:
+		case Value::Types::ARRAY:
 		{
 			auto& arr = val.GetValue<Value::Array>();
-			Value::setDepth(val, val.m_nDepth);
+			Value::setDepth(val, val.depth_);
 			os << "[\n";
 			for (auto itr = arr.begin(); itr != arr.end(); itr++)
 			{
-				Value::spaceDepth(os, val.m_nDepth + 1);
+				Value::spaceDepth(os, val.depth_ + 1);
 				os << *itr;
 				if (itr != arr.end() - 1)
 				{
@@ -173,7 +173,7 @@ namespace json
 				else
 				{
 					os << '\n';
-					Value::spaceDepth(os, val.m_nDepth);
+					Value::spaceDepth(os, val.depth_);
 					os << ']';
 					break;
 				}
@@ -181,15 +181,15 @@ namespace json
 			}
 			break;
 		}
-		case Value::types::OBJECT:
+		case Value::Types::OBJECT:
 		{
 			int cnt = 0;
 			auto& obj = val.GetValue<Value::Object>();
-			Value::setDepth(val, val.m_nDepth);
+			Value::setDepth(val, val.depth_);
 			os << "{\n";
 			for (auto& [key, value] : obj)
 			{
-				Value::spaceDepth(os, val.m_nDepth + 1);
+				Value::spaceDepth(os, val.depth_ + 1);
 				os << '\"' << key << "\": " << value;
 				if (cnt++ != obj.size() - 1)
 				{
@@ -198,7 +198,7 @@ namespace json
 				else
 				{
 					os << '\n';
-					Value::spaceDepth(os, val.m_nDepth);
+					Value::spaceDepth(os, val.depth_);
 					os << '}';
 					break;
 				}
@@ -210,11 +210,11 @@ namespace json
 		return os;
 	}
 
-	using value_type = Value::types;
+	using value_type = Value::Types;
 	using Array = Value::Array;
 	using Object = Value::Object;
-	using JsonCreator = Value::Object;
 	using Json = Value;
+
 	constexpr Value::Null Null = nullptr;
 
 	/* ---------------------------- */
@@ -263,18 +263,18 @@ namespace json
 		static Value parseValue(Iter& outIter)
 		{
 			char first = outIter->front();
-			static std::map<char, Value(*)(Iter&)> parse
+			static const std::map<char, Value(*)(Iter&)> parse
 			{
 				{'{', parseObject},
 				{'[', parseArray},
 				{'\"',parseString},
 				{'n', parseNull},
 				{'t', parseBoolean},
-				{'f', parseBoolean},
+				{'f', parseBoolean}
 			};
 			if (std::isdigit(first) || first == '-')
 				return parseNumber(outIter);
-			return parse[first](outIter);
+			return parse.at(first)(outIter);
 		}
 
 		static Value parseObject(Iter& outIter)
