@@ -2,9 +2,9 @@
     <img src='docs/logo.svg' width='100%' height='100%'/>
 </p>
 
----
-
 <span align="center">
+
+# cpp-json
 
 Header-only JSON library for C++17
 
