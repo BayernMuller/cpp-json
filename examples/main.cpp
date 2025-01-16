@@ -17,8 +17,7 @@ int main()
         },
         {"best_coaches", Array{
                 "Jupp Heynckes",
-                "Ottmar Hitzfeld",
-                "Hansi Flick"
+                "Ottmar Hitzfeld"
             }
         }
     };
